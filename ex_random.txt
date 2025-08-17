@@ -1,0 +1,48 @@
+import Foundation
+
+let numero_secreto: Int = Int.random(in: 1...100)
+var intentos: Int = 0
+var adivinado: Bool = false
+
+
+func validar_entrada_a_numero() -> Int{
+    var entrada_del_usuario: String? = nil
+    var numero_valido: Int? = nil
+    
+    while true{
+        print("Por favor introduce un numero")
+        entrada_del_usuario = readLine()
+        
+        if entrada_del_usuario == nil {
+            print("Que paso mi hacker, creias que habia una vulnerabilidad")
+        }
+        
+        numero_valido = Int(entrada_del_usuario!)
+        
+        if numero_valido == nil {
+            print("Lo que introdujistes no fue un numero entero, por favor usa numeros y no letras.")
+        }
+        else {
+            return numero_valido!
+        }
+        
+    }
+}
+var respuesta_del_usuario = validar_entrada_a_numero()
+
+print("Intenta adivinar el numero random (entre 1 y 100).")
+
+while adivinado == false {
+    let respuesta_del_usuario: Int = validar_entrada_a_numero()
+    intentos = intentos + 1
+    
+    if respuesta_del_usuario == numero_secreto {
+        print("¡Ganaste! Adivinaste el numero \(numero_secreto).")
+        print("Lo hiciste en  \(intentos) intento(s).")
+        adivinado = true
+    } else if respuesta_del_usuario < numero_secreto {
+        print("No es correcto. El numero secreto es MAYOR que \(respuesta_del_usuario).")
+    } else {
+        print("No es correcto. El numero secreto es MENOR que \(respuesta_del_usuario).")
+    }
+}
