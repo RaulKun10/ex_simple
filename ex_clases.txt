@@ -1,0 +1,42 @@
+//Cyberpunk 2077 
+
+
+class Ciberware {
+    let nombre: String
+    let rareza: String      
+    let poder: Int
+    init(_ nombre: String, _ rareza: String, _ poder: Int) { self.nombre = nombre; self.rareza = rareza; self.poder = poder }
+}
+
+class Merc {
+    let alias: String
+    var reputacion: Int = 0
+    
+    init(alias: String) { self.alias = alias }
+    func completar(gig: Gig) { reputacion = reputación + 1}
+}
+
+class Gig {
+    let titulo: String
+    var pagado: Bool = false
+    init(_ titulo: String) { self.titulo = titulo; }
+    func pagar() { pagado = true }
+}
+
+class Fixer {
+    let nombre: String
+    var agenda: [Gig] = []
+    init(nombre: String) { self.nombre = nombre }
+    func publicar(_ gig: Gig) { agenda.append(gig) }
+    func asignarGig(merc: Merc) -> Gig? { agenda.isEmpty ? nil : agenda.removeFirst() }
+}
+
+class Ripperdoc {
+    func recomendar(reputacion: Int) -> Ciberware {
+        switch reputacion {
+        case ..<20: return Ciberware("Sandevistan Mk.I", "raro", 80)
+        case 20..<50: return Ciberware("Sandevistan Mk.III", "épico", 140)
+        default: return Ciberware("Sandevistan Mk.V", "legendario", 220)
+        }
+    }
+}
