@@ -309,5 +309,95 @@ while true {
    }
 }
 
+let nuevo = PersonajeJugable("Nova", visibilidad: 0.30)
+jugadores.append(nuevo)
+_ = nuevo.cambiar_de_lugar_a(loby)
+for j in jugadores {
+    if j.nombre != nuevo.nombre { _ = j.agregar_compañero(nuevo) }
+}
+for existente in jugadores {
+    if existente.nombre != nuevo.nombre { _ = nuevo.agregar_compañero(existente) }
+}
+if nuevo.rol == .suspendido { _ = nuevo.establecer_rol(.buscando_escondite) }
 
+let nombreCamuflado = "Wally"
+let turnosCamuflajeTotal = 5
+var turnosCamuflajeRestantes = turnosCamuflajeTotal
+var visOriginalCamuflaje: Double = 0.0
+var camuflajeActivado = false
+
+func aplicarCamuflajeSiHaceFalta() {
+    if !camuflajeActivado,
+       let objetivo = jugadores.first(where: { $0.nombre == nombreCamuflado }) {
+        visOriginalCamuflaje = objetivo.visibilidad
+        objetivo.visibilidad = max(0.05, objetivo.visibilidad * 0.5)
+        camuflajeActivado = true
+        print("Camuflaje activado en \(objetivo.nombre). Vis =", objetivo.visibilidad)
+    }
+}
+func decaerCamuflajeAlFinalDelCiclo() {
+    guard camuflajeActivado else { return }
+    turnosCamuflajeRestantes -= 1
+    if turnosCamuflajeRestantes <= 0,
+       let objetivo = jugadores.first(where: { $0.nombre == nombreCamuflado }) {
+        objetivo.visibilidad = visOriginalCamuflaje
+        camuflajeActivado = false
+        print("Camuflaje terminó en \(objetivo.nombre). Vis restaurada =", objetivo.visibilidad)
+    }
+}
+
+let factorCampanilla: Double = 1.8
+var campanillaActivaEsteCiclo = false
+var campanillaAfectados: [(String, Double)] = []
+
+func intentarActivarCampanilla() {
+    if let buscador = jugadores.first(where: { $0.rol == .buscando_jugadores }),
+       let sala = buscador.lugar_actual {
+        let suerte = Int.random(in: 0...9)
+        if suerte < 3 {
+            campanillaActivaEsteCiclo = true
+            campanillaAfectados.removeAll()
+            for j in jugadores {
+                if j.lugar_actual?.nombre == sala.nombre {
+                    campanillaAfectados.append((j.nombre, j.visibilidad))
+                    j.visibilidad = min(1.0, j.visibilidad * factorCampanilla)
+                }
+            }
+            print("Campanilla activada por \(buscador.nombre) en \(sala.nombre)")
+        }
+    }
+}
+func restaurarCampanillaAlFinalDelCiclo() {
+    if campanillaActivaEsteCiclo {
+        for (nombre, visAnterior) in campanillaAfectados {
+            if let j = jugadores.first(where: { $0.nombre == nombre }) {
+                j.visibilidad = visAnterior
+            }
+        }
+        campanillaAfectados.removeAll()
+        campanillaActivaEsteCiclo = false
+    }
+}
+
+let nombreConBotas = "Chuchito"
+let turnosBotasTotal = 4
+var turnosBotasRestantes = turnosBotasTotal
+
+func aplicarBotasSiNoSeMovio(jugador: PersonajeJugable, estabaEn anterior: UbicacionFisica?) {
+    guard turnosBotasRestantes > 0, jugador.nombre == nombreConBotas else { return }
+    let noSeMovio = (anterior?.nombre == jugador.lugar_actual?.nombre)
+    if noSeMovio, let sala = jugador.lugar_actual, !sala.lugares_cercanos.isEmpty {
+        let idx = Int.random(in: 0..<sala.lugares_cercanos.count)
+        let destino = sala.lugares_cercanos[idx]
+        _ = jugador.cambiar_de_lugar_a(destino)
+        print("\(jugador.nombre) usa Botas y salta a \(destino.nombre)")
+    }
+}
+func decaerBotasAlFinalDelCiclo() {
+    if turnosBotasRestantes > 0 { turnosBotasRestantes -= 1 }
+    if turnosBotasRestantes == 0 && nombreConBotas != "" {
+        print("Botas de Sombras han expirado para \(nombreConBotas).")
+        turnosBotasRestantes = -1
+    }
+}
 
